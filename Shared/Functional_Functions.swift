@@ -267,7 +267,6 @@ class Functional_Functions: NSObject {
     /// - Returns: Array of tuples (r, u(r)) where u(r) is the computed wavefunction.
     func schrodinger_backwards_numerov_continuum(r_list: [Double], V_list: [Double], KE: Double, l: Int, l_prime: Int, u_n: Double, u_n1: Double) -> [(Double, Double)] {
         
-        // Ensure rList and VList have the same length
         guard r_list.count == V_list.count else {
             fatalError("r_list and VList must have the same length.")
         }
@@ -280,7 +279,6 @@ class Functional_Functions: NSObject {
             return Double(l_prime * (l_prime + 1)) / (r * r)
         }
         
-        // Iterate from the end of the list backwards
         for i in (0...(n-3)).reversed() {
             let r_current = r_list[i]
             let r_next = r_list[i+1]
@@ -290,21 +288,16 @@ class Functional_Functions: NSObject {
             let V_next = V_list[i+1]
             let V_secondNext = V_list[i+2]
             
-            // Step size in r
             let deltaR = r_next - r_current
             
-            // Numerov method formula for backward integration
             let term = (2 * u_n1 - u_n) * (1 - (deltaR * deltaR / 12) * (V_current + KE - angularMomentumTerm(r: r_current)))
                 - u_n * (deltaR * deltaR / 12) * (V_next + KE - angularMomentumTerm(r: r_next))
                 / (1 + (deltaR * deltaR / 12) * (V_secondNext + KE - angularMomentumTerm(r: r_secondNext)))
             
-            // Update wavefunction
             var u_current = term
             
-            // Append the result
             results.append((r_current, u_current))
             
-            // Update previous values
             u_n1 = u_n
             u_n = u_current
         }
@@ -313,6 +306,7 @@ class Functional_Functions: NSObject {
         return results.reversed()
     }
     
+    /// Rachelle Rosiles
     func integrate_radial_function(x_list: [Double], y_list: [Double]) -> Double {
         var integral = 0.0
         for i in 0..<x_list.count-1 {
@@ -329,17 +323,14 @@ class Functional_Functions: NSObject {
     
     /// Created by Rachelle Rosiles
     func rad_dip_matrix(r_list: [Double], V_list: [Double], KE: Double, l: Int, l_prime: Int, u0: Double, u1: Double) -> Double {
-        // Obtain wavefunctions for l and l'
         let u_l = schrodinger_forward_numerov_continuum(r_list: r_list, V_list: V_list, KE: KE, l_prime: l, u0: u0, u1: u1)
         let u_l_prime = schrodinger_forward_numerov_continuum(r_list: r_list, V_list: V_list, KE: KE, l_prime: l_prime, u0: u0, u1: u1)
         
-        // Ensure that u_l and u_l_prime have the same number of points
         guard u_l.count == u_l_prime.count else {
             print("Error: The number of points in the wavefunction arrays does not match.")
             return 0.0
         }
         
-        // Extract r and u values for l and l'
         let r_values = r_list
         let u_l_values = u_l.map { $0.u_value }
         let u_l_prime_values = u_l_prime.map { $0.u_value }
@@ -350,7 +341,6 @@ class Functional_Functions: NSObject {
             integrand[i] = u_l_values[i] * r_values[i] * u_l_prime_values[i]
         }
         
-        // Integrate the result using numerical integration
         let dipole_matrix_element = integrate_radial_function(x_list: r_values, y_list: integrand)
         
         return dipole_matrix_element

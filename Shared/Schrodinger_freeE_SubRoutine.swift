@@ -63,7 +63,7 @@ class WaveFunctionCalculator {
         return [dY1, dY2]
     }
     
-    // Runge-Kutta 4th order method
+    //Runge-Kutta 4th order method
     func rungeKutta(h: Double, r0: Double, y0: [Double], rEnd: Double) -> [(Double, [Double])] {
         var r = r0
         var y = y0
@@ -83,7 +83,7 @@ class WaveFunctionCalculator {
             let y4Temp = zip(y, k3).map { $0 + $1 * h }
             let k4 = derivatives(r: r + h, y: y4Temp)
 
-            // Update y using the Runge-Kutta formula
+            // Update y using the RK4
             let yNew = zip(y, zip(k1, zip(k2, zip(k3, k4))).map { (k1, k2, k3, k4) in
                 return k1 + 2 * k2 + 2 * k3 + k4
             }).map { (yValue, kSum) in
