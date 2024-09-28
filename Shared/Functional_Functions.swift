@@ -187,6 +187,175 @@ class Functional_Functions: NSObject {
         
     }
     
+    // created by Rachelle Rosiles
+    /// Name: schrodinger_forward_numerov_continuum
+    /// Description: Solves the radial part of the 1-electron Schrödinger equation for an electron in a continuum state.
+    /// The differential equation is: (d^2u/dr^2) + [V(r) + KE - l'(l'+1)/r^2] * u(r) = 0
+    ///
+    /// - Parameters:
+    ///   - r_list: List of r values (radial coordinates)
+    ///   - V_list: List of potential energy values V(r)
+    ///   - KE: Kinetic energy value
+    ///   - l_prime: Angular momentum quantum number l' (l ± 1)
+    ///   - u0: Initial guess for u(r0) (first boundary condition)
+    ///   - u1: Initial guess for u(r1) (second boundary condition)
+    /// - Returns: Array of tuples containing r value and corresponding radial wavefunction value
+    func schrodinger_forward_numerov_continuum(r_list: [Double], V_list: [Double], KE: Double, l_prime: Int, u0: Double, u1: Double) -> [(r_value: Double, u_value: Double)] {
+        
+        // Tuple array to store r and calculated u values
+        var u_tuple_array: [(r_value: Double, u_value: Double)] = []
+        
+        // Ensure x, V, and r lists are of the same length
+        let check_list_length: Bool = r_list.count == V_list.count
+        
+        // Check if the lists have the same length
+        switch check_list_length {
+            
+        case true:
+            
+            // Store initial u0 and u1 guesses
+            u_tuple_array.append((r_value: r_list[0], u_value: u0))
+            u_tuple_array.append((r_value: r_list[1], u1))
+            
+            // Variables to store previous, current, and next u values
+            var u_prev = u0
+            var u_current = u1
+            var u_next = 0.0
+            var delta_r = 0.0
+            
+            // Define constants for the angular momentum term
+            let l_prime_squared = Double(l_prime * (l_prime + 1))
+            
+            // Iterate through the r_list to compute u values using the Numerov method
+            for i in 1..<r_list.count - 1 {
+                
+                // Calculate current delta_r
+                delta_r = r_list[i + 1] - r_list[i]
+                
+                // Numerov method formula for the radial equation
+                u_next = (2.0 * u_current * (1.0 - ((pow(delta_r, 2.0) * (V_list[i] + KE - l_prime_squared / pow(r_list[i], 2.0))) / 12.0))
+                    - u_prev * (1.0 + ((pow(delta_r, 2.0) * (V_list[i - 1] + KE - l_prime_squared / pow(r_list[i - 1], 2.0))) / 12.0))
+                    + ((pow(delta_r, 2.0) / 12.0) * (V_list[i + 1] + V_list[i] + V_list[i - 1]))
+                    ) / (1.0 + ((pow(delta_r, 2.0) * (V_list[i + 1] + KE - l_prime_squared / pow(r_list[i + 1], 2.0))) / 12.0))
+                
+                // Append the r and computed u values to the result array
+                u_tuple_array.append((r_value: r_list[i + 1], u_value: u_next))
+                
+                // Update u_prev and u_current for the next iteration
+                u_prev = u_current
+                u_current = u_next
+            }
+            
+        default:
+            print("List lengths do not match")
+        }
+        
+        // Return the computed radial wavefunction values
+        return u_tuple_array
+    }
+    
+    /// Created by Rachelle Rosiles
+    /// Function to solve the radial Schrödinger equation using the backward Numerov method.
+    /// - Parameters:
+    ///   - r_list: Array of radial coordinates in decreasing order.
+    ///   - V_list: Array of potential energy values corresponding to rList.
+    ///   - KE: Kinetic energy of the electron.
+    ///   - l: Orbital angular momentum quantum number.
+    ///   - l_prime: Angular momentum quantum number (l' = l ± 1).
+    ///   - u_n: Initial condition for the wavefunction at the last radial point.
+    ///   - u_n1: Initial condition for the wavefunction at the second-to-last radial point.
+    /// - Returns: Array of tuples (r, u(r)) where u(r) is the computed wavefunction.
+    func schrodinger_backwards_numerov_continuum(r_list: [Double], V_list: [Double], KE: Double, l: Int, l_prime: Int, u_n: Double, u_n1: Double) -> [(Double, Double)] {
+        
+        // Ensure rList and VList have the same length
+        guard r_list.count == V_list.count else {
+            fatalError("r_list and VList must have the same length.")
+        }
+        
+        let n = r_list.count
+        var results: [(Double, Double)] = [(r_list[n-1], u_n), (r_list[n-2], u_n1)]
+        
+        // Function to compute the angular momentum term l'(l'+1) / r^2
+        func angularMomentumTerm(r: Double) -> Double {
+            return Double(l_prime * (l_prime + 1)) / (r * r)
+        }
+        
+        // Iterate from the end of the list backwards
+        for i in (0...(n-3)).reversed() {
+            let r_current = r_list[i]
+            let r_next = r_list[i+1]
+            let r_secondNext = r_list[i+2]
+            
+            let V_current = V_list[i]
+            let V_next = V_list[i+1]
+            let V_secondNext = V_list[i+2]
+            
+            // Step size in r
+            let deltaR = r_next - r_current
+            
+            // Numerov method formula for backward integration
+            let term = (2 * u_n1 - u_n) * (1 - (deltaR * deltaR / 12) * (V_current + KE - angularMomentumTerm(r: r_current)))
+                - u_n * (deltaR * deltaR / 12) * (V_next + KE - angularMomentumTerm(r: r_next))
+                / (1 + (deltaR * deltaR / 12) * (V_secondNext + KE - angularMomentumTerm(r: r_secondNext)))
+            
+            // Update wavefunction
+            var u_current = term
+            
+            // Append the result
+            results.append((r_current, u_current))
+            
+            // Update previous values
+            u_n1 = u_n
+            u_n = u_current
+        }
+        
+        // Reverse the results to match the original radial coordinate order
+        return results.reversed()
+    }
+    
+    func integrate_radial_function(x_list: [Double], y_list: [Double]) -> Double {
+        var integral = 0.0
+        for i in 0..<x_list.count-1 {
+            let x1 = x_list[i]
+            let x2 = x_list[i+1]
+            let y1 = y_list[i]
+            let y2 = y_list[i+1]
+            let dx = x2 - x1
+            integral += 0.5 * dx * (y1 * y1 + y2 * y2)
+        }
+        return integral
+    }
+
+    
+    /// Created by Rachelle Rosiles
+    func rad_dip_matrix(r_list: [Double], V_list: [Double], KE: Double, l: Int, l_prime: Int, u0: Double, u1: Double) -> Double {
+        // Obtain wavefunctions for l and l'
+        let u_l = schrodinger_forward_numerov_continuum(r_list: r_list, V_list: V_list, KE: KE, l_prime: l, u0: u0, u1: u1)
+        let u_l_prime = schrodinger_forward_numerov_continuum(r_list: r_list, V_list: V_list, KE: KE, l_prime: l_prime, u0: u0, u1: u1)
+        
+        // Ensure that u_l and u_l_prime have the same number of points
+        guard u_l.count == u_l_prime.count else {
+            print("Error: The number of points in the wavefunction arrays does not match.")
+            return 0.0
+        }
+        
+        // Extract r and u values for l and l'
+        let r_values = r_list
+        let u_l_values = u_l.map { $0.u_value }
+        let u_l_prime_values = u_l_prime.map { $0.u_value }
+        
+        // Calculate integrand: u_l(r) * r * u_l_prime(r)
+        var integrand = [Double](repeating: 0.0, count: r_values.count)
+        for i in 0..<r_values.count {
+            integrand[i] = u_l_values[i] * r_values[i] * u_l_prime_values[i]
+        }
+        
+        // Integrate the result using numerical integration
+        let dipole_matrix_element = integrate_radial_function(x_list: r_values, y_list: integrand)
+        
+        return dipole_matrix_element
+    }
+    
     
     // Newton-Cotes 2 point integration
     // Numerical integration method for equally spaced points.  Integral = (h/2)*(y1 + y2)

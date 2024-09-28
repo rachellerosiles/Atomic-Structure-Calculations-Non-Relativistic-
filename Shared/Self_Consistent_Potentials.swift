@@ -268,7 +268,7 @@ class Self_Consistent_Potentials: NSObject {
     ///   - pratt_alpha: Double ranging from 0.0-1.0 that determines amount potential are changed between iterations (0.7-0.9 is slow but is more likely to converge, 0.1-0.5 is fast but not likely to converge correctly).
     ///   - KEY: Indicates input potential format
     ///   - thresh_criterion: Acceptable value of deltaE/E
-    ///   - max_beta_iterations: Max number of iterations to calculate self-consistent potentials
+    ///   - max_beta_iteratiookay bens: Max number of iterations to calculate self-consistent potentials
     ///   - max_thresh_iterations: Max number of iterations to calculate self-consistent energy and P wave function values
     ///   - ionic_radius: Radius of ion if input atom is ion
     ///   - branching_ratio: Branching ratio for ionic radius if atom is ion

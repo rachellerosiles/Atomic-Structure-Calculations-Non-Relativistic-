@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A0DF5EEF2C9CF4A9005FD987 /* Schrodinger_freeE_SubRoutine.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0DF5EEE2C9CF4A9005FD987 /* Schrodinger_freeE_SubRoutine.swift */; };
 		A5B86A642754987F00E288FA /* Mesh_Potential_Initialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */; };
 		A5B86A652754987F00E288FA /* Mesh_Potential_Initialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */; };
 		A5B86A662754987F00E288FA /* Mesh_Potential_Initialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */; };
@@ -103,6 +104,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A0DF5EEE2C9CF4A9005FD987 /* Schrodinger_freeE_SubRoutine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Schrodinger_freeE_SubRoutine.swift; sourceTree = "<group>"; };
 		A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mesh_Potential_Initialization.swift; sourceTree = "<group>"; };
 		A5B86A5D2754987F00E288FA /* Output_File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Output_File.swift; sourceTree = "<group>"; };
 		A5B86A5E2754987F00E288FA /* HFS_textbook_values.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HFS_textbook_values.swift; sourceTree = "<group>"; };
@@ -187,23 +189,24 @@
 		D292F14C275493650008A716 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
-				A5B86A602754987F00E288FA /* Functional_Functions.swift */,
-				A5B86A8927552C4A00E288FA /* TextExportDocument.swift */,
-				A5B86A5E2754987F00E288FA /* HFS_textbook_values.swift */,
-				A5B86A622754987F00E288FA /* Input_File.swift */,
-				A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */,
+				A0DF5EEE2C9CF4A9005FD987 /* Schrodinger_freeE_SubRoutine.swift */,
 				A5B86A5D2754987F00E288FA /* Output_File.swift */,
 				A5B86A5F2754987F00E288FA /* Schroedinger_Eq_SubRoutine.swift */,
 				A5B86A632754987F00E288FA /* Self_Consistent_Potentials.swift */,
+				A5B86A8E275531C200E288FA /* HermanSkillmanCalculator.swift */,
 				A5B86A612754987F00E288FA /* WaveFunction_Values.swift */,
-				D292F14D275493650008A716 /* Atomic_Structure_Calculations__Non_Relativistic_App.swift */,
-				A5B86A8427552B5200E288FA /* TextView.swift */,
+				A5B86A602754987F00E288FA /* Functional_Functions.swift */,
+				A5B86A5C2754987F00E288FA /* Mesh_Potential_Initialization.swift */,
+				A5B86A622754987F00E288FA /* Input_File.swift */,
 				D292F14E275493650008A716 /* ContentView.swift */,
+				D292F14D275493650008A716 /* Atomic_Structure_Calculations__Non_Relativistic_App.swift */,
+				A5B86A8927552C4A00E288FA /* TextExportDocument.swift */,
 				D292F1A9275495A10008A716 /* PlotDataClass.swift */,
 				D292F19C2754953B0008A716 /* CorePlot.swift */,
 				D292F1B2275496150008A716 /* ChangingPlotParameters.swift */,
 				D292F1BB275496580008A716 /* CalculatePlotData.swift */,
-				A5B86A8E275531C200E288FA /* HermanSkillmanCalculator.swift */,
+				A5B86A5E2754987F00E288FA /* HFS_textbook_values.swift */,
+				A5B86A8427552B5200E288FA /* TextView.swift */,
 				D292F14F275493660008A716 /* Assets.xcassets */,
 				A5B86A932755FA5700E288FA /* Credits.rtf */,
 			);
@@ -443,6 +446,7 @@
 				A5B86A7C2754987F00E288FA /* Input_File.swift in Sources */,
 				A5B86A802754987F00E288FA /* Self_Consistent_Potentials.swift in Sources */,
 				D292F1BC275496580008A716 /* CalculatePlotData.swift in Sources */,
+				A0DF5EEF2C9CF4A9005FD987 /* Schrodinger_freeE_SubRoutine.swift in Sources */,
 				D292F1AA275495A10008A716 /* PlotDataClass.swift in Sources */,
 				A5B86A6C2754987F00E288FA /* HFS_textbook_values.swift in Sources */,
 				A5B86A782754987F00E288FA /* WaveFunction_Values.swift in Sources */,

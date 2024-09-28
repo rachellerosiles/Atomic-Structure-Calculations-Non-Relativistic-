@@ -758,5 +758,134 @@ class Schroedinger_Eq_SubRoutine: NSObject {
         
     }
     
+    /// Created by Rachelle Rosiles
+    func calculateSelfConsistentWavefunction(initial_r_list: [Double], initial_KE_list: [Double], number_blocks: Double, l_number: Double, trial_psi0_guess: Double, psi_n_guess: Double, psi_n_minus1_guess: Double, number_points: Double, initial_delta_x: Double, test_scalar: Double) -> [Double] {
+        
+        // outward Integration
+        let outwardIndexTuple = (outer_radius_index_block: 0, outer_radius_block_number: number_blocks, outer_radius_index_univ: 0)
+        let keIndexTuple = (KE_cross_index_block: 0, KE_cross_block_number: number_blocks, KE_cross_index_univ: Int(number_points) - 1)
+        
+        outward_integration(initial_r_list: initial_r_list, initial_KE_list: initial_KE_list, number_blocks: number_blocks, l_number: l_number, trial_psi0_guess: trial_psi0_guess, number_points: number_points, KE_index_tuple: keIndexTuple, outward_index_tuple: outwardIndexTuple)
+        
+        //inward Integration
+        inward_integration(initial_r_list: initial_r_list, initial_KE_list: initial_KE_list, number_blocks: number_blocks, l_number: l_number, psi_n_guess: psi_n_guess, psi_n_minus1_guess: psi_n_minus1_guess, number_points: number_points, initial_delta_x: initial_delta_x, test_scalar: test_scalar, outward_index_tuple: outwardIndexTuple, KE_index_tuple: keIndexTuple)
+        
+        let normalizedWavefunction = normalizeWavefunction()
+        
+        return normalizedWavefunction
+    }
+    
+    private func normalizeWavefunction() -> [Double] {
+        // Assuming test_final_values_list contains the wavefunction values
+        let totalProbability = test_final_values_list.reduce(0.0) { $0 + pow($1, 2.0) }
+        
+        guard totalProbability > 0 else {
+            print("Total probability is zero, cannot normalize.")
+            return []
+        }
+        
+        let normalizationFactor = sqrt(totalProbability)
+        
+        // Normalize wavefunction values
+        let normalizedValues = test_final_values_list.map { $0 / normalizationFactor }
+        
+        return normalizedValues
+        }
+    }
+
+
+    /// Rachelle Rosiles
+    /// attempt 2
+    func schroedinger_self_consistent_positive_energy(z_value: Double, initial_energy: Double, number_blocks: Double, l_number: Double, number_points: Double, initial_delta_x: Double, mesh_scalar: Double, principal_quant_number: Double, input_pot_list: [Double], thresh_criterion: Double, max_thresh_iterations: Int) {
+        let schroed_functional_functions_inst = myHartreeFockSCFCalculator!.functional_functions_inst
+        let schroed_wavefunction_values_inst = myHartreeFockSCFCalculator!.wavefunction_values_inst
+        let schroed_mesh_potential_init_inst = myHartreeFockSCFCalculator!.mesh_potential_init_inst
+
+        var current_energy = initial_energy
+        var delta_energy: Double
+        let energy_conv_tolerance = 1.0E-09
+        var final_energy: Double = current_energy
+        var calculated_energy_thresh_criterion: Double = 1.0
+
+        repeat {
+            //init potential and kinetic energy terms
+            schroed_mesh_potential_init_inst.initialize_mesh_pot_KE(
+                number_blocks: number_blocks,
+                x_to_r_scalar: mesh_scalar,
+                delta_x_initial: initial_delta_x,
+                input_pot_list: input_pot_list,
+                l_quant_number: l_number,
+                input_energy: current_energy,
+                number_points: number_points
+            )
+            
+            let initial_KE_list = schroed_mesh_potential_init_inst.KE_term_list
+            let KE_index_tuple = schroed_mesh_potential_init_inst.KE_cross_index_tuple
+            let outward_index_tuple = schroed_mesh_potential_init_inst.outer_radius_index_tuple
+            
+            //wf guess at origin (or replace with zero)
+            let trial_psi0_guess = schroed_wavefunction_values_inst.wf_origin_boundary_approximation(
+                second_potential_value: schroed_mesh_potential_init_inst.trial_pot_list[1],
+                third_potential_value: schroed_mesh_potential_init_inst.trial_pot_list[2],
+                second_rmesh_value: schroed_mesh_potential_init_inst.r_mesh[1],
+                z_value: z_value,
+                energy_value: current_energy,
+                input_l_quant_number: l_number
+            )
+            
+            //using outward integration
+            self.outward_integration(
+                initial_r_list: schroed_mesh_potential_init_inst.r_mesh,
+                initial_KE_list: initial_KE_list,
+                number_blocks: number_blocks,
+                l_number: l_number,
+                trial_psi0_guess: trial_psi0_guess,
+                number_points: number_points,
+                KE_index_tuple: KE_index_tuple,
+                outward_index_tuple: outward_index_tuple
+            )
+
+            //normalization calculation
+            let norm_factor = calculate_normalization_factor(
+                wavefunction_list: schroed_wavefunction_values_inst.outward_Pwavefunction_tuple_array,
+                number_points: number_points,
+                l_number: l_number
+            )
+
+            //normalizing
+            normalize_wavefunction(
+                wavefunction_tuple_array: &schroed_wavefunction_values_inst.outward_Pwavefunction_tuple_array,
+                normalization_constant: norm_factor
+            )
+
+            // Update final energy and convergence check
+            delta_energy = 
+            final_energy += delta_energy
+            calculated_energy_thresh_criterion = abs(delta_energy / final_energy)
+
+        } while calculated_energy_thresh_criterion > thresh_criterion && max_thresh_iterations > 0
+
+        schroed_wavefunction_values_inst.energy_value = final_energy
+    }
+
+    ///Rachelle Rosiles
+    //Function to calculate normalization factor for positive energy
+    func calculate_normalization_factor(wavefunction_list: [(r_value: Double, wavefunction_value: Double)], number_points: Double, l_number: Double) -> Double {
+        var integral_sum: Double = 0.0
+        for wf in wavefunction_list {
+            integral_sum += pow(wf.wavefunction_value, 2) * wf.r_value // Integrate over r^2
+        }
+        return 1.0 / sqrt(integral_sum * (4.0 * Double.pi) * (number_points)) // Normalize over spherical volume
+    }
+
+    ///Rachelle Rosiles
+    ///Function to normalize wavefunction values
+    func normalize_wavefunction(wavefunction_tuple_array: inout [(wavefunction_list: [(r_value: Double, wavefunction_value: Double)], block_number: Double)], normalization_constant: Double) {
+        for i in 0..<wavefunction_tuple_array.count {
+            for j in 0..<wavefunction_tuple_array[i].wavefunction_list.count {
+                wavefunction_tuple_array[i].wavefunction_list[j].wavefunction_value *= normalization_constant
+            }
+        }
+    }
     
 }

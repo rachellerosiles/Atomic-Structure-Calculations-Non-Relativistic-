@@ -1,0 +1,15 @@
+{
+  "originHash" : "ea21d2653fde48220e123794301cf153989b9344cbd0ea052d7f854ae4a8b40f",
+  "pins" : [
+    {
+      "identity" : "core-plot",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/core-plot/core-plot",
+      "state" : {
+        "branch" : "release-2.4",
+        "revision" : "ad71ae9d54fd24e18956f3ddd2d5f361af0b4acb"
+      }
+    }
+  ],
+  "version" : 3
+}
